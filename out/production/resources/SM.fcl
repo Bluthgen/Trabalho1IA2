@@ -1,0 +1,351 @@
+FUNCTION_BLOCK compravende
+
+	VAR_INPUT
+		picos: REAL;
+		vales: REAL;
+		ifr: REAL;
+		distbollbaix: REAL;
+		distbollalt: REAL;
+		tipocandle: REAL;
+		movimento: REAL;
+		mediasmovs: REAL;
+	END_VAR
+
+	VAR_OUTPUT
+		comprar: REAL;
+		vender: REAL;
+	END_VAR
+
+	FUZZIFY picos
+		TERM despencando  := (0, 1) (15, 1) (25, 0);
+		TERM queda  := (15, 0) (25, 1) (40, 1) (50, 0);
+		TERM neutro  := (30, 0) (40, 1) (60, 1) (70, 0);
+		TERM subindo  := (50, 0) (60, 1) (75, 1) (85, 0);
+		TERM decolando  := (75, 0) (85, 1) (100, 1);
+	END_FUZZIFY
+
+    FUZZIFY vales
+        TERM despencando  := (0, 1) (15, 1) (25, 0);
+        TERM queda  := (15, 0) (25, 1) (40, 1) (50, 0);
+        TERM neutro  := (30, 0) (40, 1) (60, 1) (70, 0);
+        TERM subindo  := (50, 0) (60, 1) (75, 1) (85, 0);
+        TERM decolando  := (75, 0) (85, 1) (100, 1);
+    END_FUZZIFY
+
+
+
+    FUZZIFY distbollalt
+        TERM contiguo  := (0, 1) (15, 1) (25, 0);
+        TERM perto  := (15, 0) (25, 1) (40, 1) (50, 0);
+        TERM meia_distancia  := (30, 0) (40, 1) (60, 1) (70, 0);
+        TERM longe  := (50, 0) (60, 1) (75, 1) (85, 0);
+        TERM remoto  := (75, 0) (85, 1) (100, 1);
+    END_FUZZIFY
+
+    FUZZIFY distbollbaix
+        TERM contiguo  := (0, 1) (15, 1) (25, 0);
+        TERM perto  := (15, 0) (25, 1) (40, 1) (50, 0);
+        TERM meia_distancia  := (30, 0) (40, 1) (60, 1) (70, 0);
+        TERM longe  := (50, 0) (60, 1) (75, 1) (85, 0);
+        TERM remoto  := (75, 0) (85, 1) (100, 1);
+    END_FUZZIFY
+
+    FUZZIFY mediasmovs
+        TERM caindo := (0, 1) (30, 1) (40, 0);
+        TERM neutro := (30, 0) (40, 1) (60, 1) (70, 0);
+        TERM subindo := (60, 0) (70, 1) (100, 1);
+    END_FUZZIFY
+
+    FUZZIFY ifr
+        TERM minusculo := (0, 1) (8, 1) (15, 0);
+        TERM baixo := (10, 0) (18, 1) (28, 1) (40, 0);
+        TERM medio := (35, 0) (45, 1) (55, 1) (65, 0);
+        TERM alto := (60, 0) (72, 1) (82, 1) (90, 0);
+        TERM enorme := (75, 0) (92, 1) (100, 1);
+    END_FUZZIFY
+
+    FUZZIFY tipocandle
+        TERM forca_queda := (0, 1) (1, 0);
+        TERM virada_queda := (4, 0) (5, 1) (6, 0);
+        TERM virada_subida := (9, 0) (10, 1) (11, 0);
+        TERM forca_subida := (14, 0) (15, 1) (16, 0);
+        TERM nenhum := (19, 0) (20, 1);
+    END_FUZZIFY
+
+    FUZZIFY movimento
+        TERM queda := (1, 1) (2, 0);
+        TERM congestao := (4, 0) (5, 1) (6, 0);
+        TERM subida := (9, 0) (10, 1);
+    END_FUZZIFY
+
+	DEFUZZIFY comprar
+		TERM sim := (1, 0) (10, 1) (80, 1) (100, 0);
+		TERM nao := (0, 1) (1, 0);
+		METHOD: COG;
+	END_DEFUZZIFY
+
+	DEFUZZIFY vender
+        TERM sim := (1, 0) (5, 1) (95, 1) (100, 0);
+        TERM nao := (0, 1) (1, 0);
+        METHOD: COG;
+    END_DEFUZZIFY
+	
+	RULEBLOCK NO1
+		AND:MIN;
+		ACCU:MAX;
+		ACT:MIN;
+
+        RULE 1: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 2: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 3: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 4: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 5: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 6: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 7: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 8: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 9: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 10: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 11: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 12: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 13: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 14: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 15: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 16: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 17: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 18: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 19: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 20: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 21: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 22: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 23: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 24: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 25: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 26: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 27: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 28: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 29: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 30: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 31: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 32: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 33: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 34: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 35: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 36: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 37: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 38: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 39: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 40: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 41: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 42: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 43: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 44: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 45: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 46: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 47: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 48: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS subindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 49: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 50: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 51: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 52: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 53: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 54: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 55: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 56: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 57: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 58: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 59: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 60: IF movimento IS subida AND picos IS subindo AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 61: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 62: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 63: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 64: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 65: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 66: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 67: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 68: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 69: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 70: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 71: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 72: IF movimento IS subida AND picos IS subindo AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 73: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 74: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 75: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 76: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 77: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 78: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 79: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 80: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 81: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 82: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 83: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 84: IF movimento IS subida AND picos IS decolando AND vales IS subindo AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 85: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 86: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 87: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 88: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 89: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 90: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS contiguo AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 91: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 92: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 93: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS enorme AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 94: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 95: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 96: IF movimento IS subida AND picos IS decolando AND vales IS decolando AND distbollalt IS perto AND ifr IS alto AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+
+        RULE 97: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 98: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 99: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 100: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 101: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 102: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 103: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 104: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 105: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 106: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 107: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 108: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 109: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 110: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 111: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 112: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 113: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 114: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 115: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 116: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 117: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 118: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 119: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 120: IF movimento IS queda AND picos IS despencando AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 121: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 122: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 123: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 124: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 125: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 126: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 127: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 128: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 129: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 130: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 131: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 132: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 133: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 134: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 135: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 136: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 137: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 138: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 139: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 140: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 141: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 142: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 143: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 144: IF movimento IS queda AND picos IS despencando AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 145: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 146: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 147: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 148: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 149: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 150: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 151: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 152: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 153: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 154: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 155: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 156: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 157: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 158: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 159: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 160: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 161: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 162: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 163: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 164: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 165: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 166: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 167: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 168: IF movimento IS queda AND picos IS queda AND vales IS despencando AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 169: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 170: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 171: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 172: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 173: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 174: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 175: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 176: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 177: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 178: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 179: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 180: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS contiguo AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 181: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 182: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 183: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 184: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 185: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 186: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS minusculo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 187: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 188: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 189: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS caindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 190: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 191: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 192: IF movimento IS queda AND picos IS queda AND vales IS queda AND distbollbaix IS perto AND ifr IS baixo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+
+        RULE 193: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 194: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 195: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 196: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 197: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS subindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 198: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 199: IF movimento IS congestao AND picos IS subindo AND vales IS subindo AND mediasmovs IS subindo AND tipocandle IS virada_subida THEN comprar IS sim;
+        RULE 200: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 201: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 202: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 203: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 204: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 205: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 206: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 207: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 208: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 209: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 210: IF movimento IS congestao AND picos IS decolando AND vales IS decolando AND mediasmovs IS subindo AND tipocandle IS forca_subida THEN comprar IS sim;
+        RULE 211: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 212: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 213: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 214: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 215: IF movimento IS congestao AND picos IS subindo AND vales IS subindo AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 216: IF movimento IS congestao AND picos IS decolando AND vales IS decolando AND mediasmovs IS subindo AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 217: IF movimento IS congestao AND picos IS subindo AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 218: IF movimento IS congestao AND picos IS neutro AND vales IS subindo AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 219: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 220: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS neutro AND tipocandle IS nenhum THEN comprar IS sim;
+        RULE 221: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 222: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 223: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 224: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 225: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS caindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 226: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 227: IF movimento IS congestao AND picos IS queda AND vales IS queda AND mediasmovs IS caindo AND tipocandle IS virada_queda THEN vender IS sim;
+        RULE 228: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 229: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 230: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 231: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 232: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 233: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 234: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 235: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 236: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 237: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 238: IF movimento IS congestao AND picos IS decolando AND vales IS decolando AND mediasmovs IS caindo AND tipocandle IS forca_queda THEN vender IS sim;
+        RULE 239: IF movimento IS congestao AND picos IS neutro AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 240: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 241: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 242: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 243: IF movimento IS congestao AND picos IS queda AND vales IS queda AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 244: IF movimento IS congestao AND picos IS decolando AND vales IS decolando AND mediasmovs IS caindo AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 245: IF movimento IS congestao AND picos IS queda AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 246: IF movimento IS congestao AND picos IS neutro AND vales IS queda AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 247: IF movimento IS congestao AND picos IS decolando AND vales IS neutro AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+        RULE 248: IF movimento IS congestao AND picos IS neutro AND vales IS decolando AND mediasmovs IS neutro AND tipocandle IS nenhum THEN vender IS sim;
+
+	END_RULEBLOCK
+	
+END_FUNCTION_BLOCK
